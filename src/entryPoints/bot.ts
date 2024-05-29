@@ -1,6 +1,11 @@
 import { Context, Telegraf } from "telegraf";
 
+const mentions = ["bobr", "bóbr", "бобр"];
+
 async function handleMessage(ctx: Context): Promise<void> {
+  if (!ctx.message || !ctx.chat) {
+    return;
+  }
   const endpointUrl = process.env.RAG_ENDPOINT_URL ?? null;
   if (endpointUrl === null) {
     throw new Error("No RAG endpoint URL provided");
@@ -8,6 +13,15 @@ async function handleMessage(ctx: Context): Promise<void> {
 
   // @ts-ignore
   const text: string = ctx.message.text;
+
+  if (
+    ctx.chat.id !== ctx.message.from.id &&
+    !mentions.some((mention) => text.toLowerCase().startsWith(mention)) &&
+    !text.includes(ctx.botInfo.username)
+  ) {
+    return;
+  }
+
   // @ts-ignore
   const username: string = ctx.message.from.username;
   if (!text) {
