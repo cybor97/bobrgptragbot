@@ -47,7 +47,7 @@ async function handleMessage(ctx: Context): Promise<void> {
     .map((line) => line.substring(3, line.length - 1))
     .join("");
 
-  await ctx.reply(respText);
+  await ctx.reply(respText.replace("\\n", "\n"));
 }
 
 export function initBot(): void {
