@@ -13,6 +13,9 @@ async function handleMessage(ctx: Context): Promise<void> {
 
   // @ts-ignore
   const text: string = ctx.message.text;
+  if (!text) {
+    return;
+  }
 
   if (
     ctx.chat.id !== ctx.message.from.id &&
