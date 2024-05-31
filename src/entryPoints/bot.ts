@@ -56,8 +56,9 @@ async function handleMessage(ctx: Context): Promise<void> {
     // 0:"something"
     .map((line) => line.substring(3, line.length - 1))
     .join("")
+    // replace formatting from RAG
     .replace(/\\n/g, "\n")
-    .replace('\\"/g', '"');
+    .replace(/\\"/g, '"');
 
   await ctx.reply(respText);
 }
