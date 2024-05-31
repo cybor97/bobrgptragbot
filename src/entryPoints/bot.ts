@@ -1,4 +1,5 @@
 import { Context, Telegraf } from "telegraf";
+import { Message } from "telegraf/typings/core/types/typegram";
 
 const mentions = ["bobr", "bóbr", "бобр"];
 
@@ -17,10 +18,13 @@ async function handleMessage(ctx: Context): Promise<void> {
     return;
   }
 
+  // @ts-ignore
+  const replyTo: Message | null = ctx.message.reply_to_message ?? null;
   if (
     ctx.chat.id !== ctx.message.from.id &&
     !mentions.some((mention) => text.toLowerCase().startsWith(mention)) &&
-    !text.includes(ctx.botInfo.username)
+    !text.includes(ctx.botInfo.username) &&
+    !(replyTo && replyTo.from?.id === ctx.botInfo.id)
   ) {
     return;
   }
@@ -30,17 +34,23 @@ async function handleMessage(ctx: Context): Promise<void> {
   if (!text) {
     return;
   }
+
+  const messages = [
+    { role: "user", content: `${username ?? "anonymous user"}: ${text}` },
+  ];
+  // @ts-ignore
+  const replyText = replyTo?.text ?? null;
+  if (replyText) {
+    messages.unshift({ role: "assistant", content: replyText });
+  }
+
   await ctx.sendChatAction("typing");
   const res = await fetch(endpointUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      messages: [
-        { role: "user", content: `${username ?? "anonymous user"}: ${text}` },
-      ],
-    }),
+    body: JSON.stringify({ messages }),
   });
   const data = await res.text();
 
@@ -48,9 +58,11 @@ async function handleMessage(ctx: Context): Promise<void> {
     .split("\n")
     // 0:"something"
     .map((line) => line.substring(3, line.length - 1))
-    .join("");
+    .join("")
+    .replace(/\\n/g, "\n")
+    .replace('\\"/g', '"');
 
-  await ctx.reply(respText.replace(/\\n/g, "\n"));
+  await ctx.reply(respText);
 }
 
 export function initBot(): void {
