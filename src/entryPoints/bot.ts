@@ -29,15 +29,11 @@ async function handleMessage(ctx: Context): Promise<void> {
     return;
   }
 
-  // @ts-ignore
-  const username: string = ctx.message.from.username;
   if (!text) {
     return;
   }
 
-  const messages = [
-    { role: "user", content: `${username ?? "anonymous user"}: ${text}` },
-  ];
+  const messages = [{ role: "user", content: text }];
   // @ts-ignore
   const replyText = replyTo?.text ?? null;
   if (replyText) {
@@ -49,8 +45,9 @@ async function handleMessage(ctx: Context): Promise<void> {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: process.env.RAG_AUTH_TOKEN!,
     },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, data: { userId: ctx.message.from.id } }),
   });
   const data = await res.text();
 
