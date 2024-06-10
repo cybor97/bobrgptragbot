@@ -77,10 +77,18 @@ async function handleMessage(ctx: Context): Promise<void> {
         );
         if (key === "DISAGREE") {
           try {
-            await ctx.banChatMember(
-              ctx.message.from.id,
-              Math.floor(Date.now() / 1000 + BAN_TIME),
-            );
+            await ctx.restrictChatMember(ctx.message.from.id, {
+              until_date: Math.floor(Date.now() / 1000 + BAN_TIME),
+              permissions: {
+                can_send_messages: false,
+                can_send_other_messages: false,
+                can_add_web_page_previews: false,
+                can_change_info: false,
+                can_invite_users: false,
+                can_pin_messages: false,
+                can_manage_topics: false,
+              },
+            });
           } catch (err) {
             console.error(`Unable to ban user ${ctx.message.from.id}: ${err}`);
           }
