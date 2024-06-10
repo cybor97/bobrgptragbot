@@ -74,7 +74,11 @@ async function handleMessage(ctx: Context): Promise<void> {
           reactions[key as keyof typeof reactions] as TelegramEmoji,
         );
         if (key === "DISAGREE") {
-          await ctx.banChatMember(ctx.message.from.id);
+          try {
+            await ctx.banChatMember(ctx.message.from.id);
+          } catch (err) {
+            console.error(`Unable to ban user ${ctx.message.from.id}: ${err}`);
+          }
         }
         break;
       }
