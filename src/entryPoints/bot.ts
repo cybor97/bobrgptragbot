@@ -61,7 +61,10 @@ async function handleMessage(ctx: Context): Promise<void> {
       .replace(/\\n/g, "\n")
       .replace(/\\"/g, '"');
 
-    await ctx.reply(respText, { parse_mode: "Markdown" });
+    await ctx.reply(respText, {
+      parse_mode: "Markdown",
+      reply_parameters: { message_id: ctx.message.message_id },
+    });
   } catch (err) {
     await ctx.reply("Coś poszło nie tak!");
     console.error(err);
