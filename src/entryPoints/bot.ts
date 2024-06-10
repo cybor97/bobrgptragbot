@@ -9,7 +9,7 @@ const reactions = {
   AWESOME: "🔥",
 };
 
-const BAN_TIME = 1000 * 60 * 10;
+const BAN_TIME = 600;
 
 async function handleMessage(ctx: Context): Promise<void> {
   try {
@@ -77,7 +77,10 @@ async function handleMessage(ctx: Context): Promise<void> {
         );
         if (key === "DISAGREE") {
           try {
-            await ctx.banChatMember(ctx.message.from.id, Date.now() + BAN_TIME);
+            await ctx.banChatMember(
+              ctx.message.from.id,
+              Math.floor(Date.now() / 1000 + BAN_TIME),
+            );
           } catch (err) {
             console.error(`Unable to ban user ${ctx.message.from.id}: ${err}`);
           }
