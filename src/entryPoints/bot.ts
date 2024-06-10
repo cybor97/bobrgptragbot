@@ -1,7 +1,13 @@
 import { Context, Telegraf } from "telegraf";
-import { Message } from "telegraf/typings/core/types/typegram";
+import { Message, TelegramEmoji } from "telegraf/typings/core/types/typegram";
 
 const mentions = ["bobr", "bóbr", "бобр"];
+const reactions = {
+  THUMBSUP: "👍",
+  THUMBSDOWN: "👎",
+  DISAGREE: "💩",
+  AWESOME: "🔥",
+};
 
 async function handleMessage(ctx: Context): Promise<void> {
   try {
@@ -52,7 +58,7 @@ async function handleMessage(ctx: Context): Promise<void> {
     });
     const data = await res.text();
 
-    const respText = data
+    let respText = data
       .split("\n")
       // 0:"something"
       .map((line) => line.substring(3, line.length - 1))
@@ -60,6 +66,16 @@ async function handleMessage(ctx: Context): Promise<void> {
       // replace formatting from RAG
       .replace(/\\n/g, "\n")
       .replace(/\\"/g, '"');
+
+    for (let key in reactions) {
+      if (respText.includes(key)) {
+        respText = respText.replace(new RegExp(key, "g"), "");
+        await ctx.react(
+          reactions[key as keyof typeof reactions] as TelegramEmoji,
+        );
+        break;
+      }
+    }
 
     await ctx.reply(respText, {
       parse_mode: "Markdown",
