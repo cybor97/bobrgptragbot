@@ -60,6 +60,14 @@ async function handleMessage(ctx: Context): Promise<void> {
     });
     const data = await res.text();
 
+    if (res.status !== 200) {
+      const errorData = JSON.parse(data);
+      if (errorData.detail.startsWith("429")) {
+        await ctx.reply(`Przykro mi, ale nie mam wystarczających środków, aby funkcjonować\n${process.env.DONATION_URL}`)
+        return;
+      }
+    }
+
     let respText = data
       .split("\n")
       // 0:"something"
